@@ -4,7 +4,7 @@ a simple chart that ease deployment of classic apps on k8s.
 
 ##  values
 
-See `example-values.yaml`
+See `example-values.yaml` for a complete example
 
 ## use
 
@@ -28,8 +28,6 @@ spec:
   targetNamespace: services
   values:
 ---
-
-
 ```
 
 ## testing
@@ -41,6 +39,8 @@ helm template -f example-values.yaml . | k apply -f - --dry-run=server
 
 ## changelog
 
+1.5.0: rename `extras -> containerSpec`, add `podSpec`, and `secrets` for generating simple secrets
+1.4.1: chore bump for triggering the CI for the first time
 1.4.0: add `deploymentSpec` key for adding extra config at the deployment level
 1.3.0: add annotation so flux avoid reconciliation on ingresses when modified by klipper
 1.2.0: added `extras` key that allows settings arbitrary container-level specs

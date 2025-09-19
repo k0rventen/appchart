@@ -40,8 +40,20 @@ apps:
         persistentVolumeClaim:
           claimName: data
 
-    # extras spec for the pod
-    extras:
+    # extra spec for the pod
+    podSpec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: topology.kubernetes.io/zone
+                operator: In
+                values:
+                - antarctica-east1
+
+    # extras spec for the container
+    containerSpec:
       envFrom:
         - secretRef:
             name: test-secret
@@ -67,3 +79,9 @@ apps:
 configmaps:
   conf:
     key: value
+
+# this will be encrypted using sops
+secrets:
+  app-secret:
+    TOKEN: averyrealtoken
+    DB_PASSWORD: notarealpassword
