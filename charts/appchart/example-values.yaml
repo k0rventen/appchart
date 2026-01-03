@@ -72,6 +72,7 @@ apps:
     # default ingressclass is traefik, traefik-tunnel if public: true
     ingress:
       public: true # default to false
+      geoblock: false # default to true
       domain: app.domain.com
 
 

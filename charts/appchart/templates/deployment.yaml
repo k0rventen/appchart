@@ -38,15 +38,20 @@ spec:
 
         {{- if ( default false .anubis ) }}
         - name: anubis
-          image: ghcr.io/techarohq/anubis:v1.22.0@sha256:90eb7eab65b28e63bf11f9dedf4b34d599bcaab9d84e8f3d537f027f9ac96c62
-          imagePullPolicy: Always
+          image: ghcr.io/techarohq/anubis:v1.24.0@sha256:4bdf6ddd1a8dc8bfe7a33d823a1cb72157885ca4fd3ee749654b21cba732e439
           env:
             - name: "TARGET"
               value: "http://localhost:{{ .service }}"
+            - name: "DIFFICULTY"
+              value: "4"
           securityContext:
             runAsUser: 1000
             runAsGroup: 1000
             runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
         {{- end }}
 
       {{- if .volumes }}
@@ -106,8 +111,6 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: {{ .name }}
-  annotations:
-    kustomize.toolkit.fluxcd.io/ssa: IfNotPresent
 spec:
   ingressClassName: traefik
   rules:
@@ -131,7 +134,9 @@ kind: Ingress
 metadata:
   name: {{ .name }}-tunnel
   annotations:
-    kustomize.toolkit.fluxcd.io/ssa: IfNotPresent
+    {{- if ( default true .ingress.geoblock ) }}
+    traefik.ingress.kubernetes.io/router.middlewares: ingress-geoblock@kubernetescrd
+    {{- end }}
 spec:
   ingressClassName: traefik-tunnel
   rules:

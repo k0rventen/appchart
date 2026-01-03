@@ -1,19 +1,49 @@
 # appchart
 
-A simple helm chart for deploying simple deployments to k8s.
+a simple chart that ease deployment of classic apps on k8s.
 
-tl;dr:
-```
-apps:
-  - name: simple-echo
-    image: traefik/whoami@sha256:200689790a0a0ea48ca45992e0450bc26ccab5307375b41c84dfc4f2475937ab
-    service: 80
-    ingress:
-      domain: echo.domain.com
+##  values
+
+See `example-values.yaml` for a complete example
+
+## use
+
+In your HelmRelease:
+
+```yaml
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: example
+spec:
+  chart:
+    spec:
+      chart: ./k8s/appchart
+      version: "x.x.x"
+      sourceRef:
+        kind: GitRepository
+        name: flux-system
+        namespace: flux-system
+      interval: 10m
+  targetNamespace: services
+  values:
+    apps:
+      - name: simple-echo
+        ...
 ```
 
-then deploy with:
+## testing
 
 ```
-<wip>
+helm template -f example-values.yaml . | k apply -f - --dry-run=server
 ```
+
+
+## changelog
+
+1.6.0: added `ingress.geoblock` for traefik middleware flag, updated anubis image
+1.5.0: rename `extras -> containerSpec`, add `podSpec`, and `secrets` for generating simple secrets
+1.4.1: chore bump for triggering the CI for the first time
+1.4.0: add `deploymentSpec` key for adding extra config at the deployment level
+1.3.0: add annotation so flux avoid reconciliation on ingresses when modified by klipper
+1.2.0: added `extras` key that allows settings arbitrary container-level specs
