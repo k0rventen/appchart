@@ -134,7 +134,7 @@ kind: Ingress
 metadata:
   name: {{ .name }}-tunnel
   annotations:
-    {{- if ( default true .ingress.geoblock ) }}
+    {{- if ( default false .ingress.worldwide_access ) }}
     traefik.ingress.kubernetes.io/router.middlewares: ingress-geoblock@kubernetescrd
     {{- end }}
 spec:
