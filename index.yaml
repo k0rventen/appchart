@@ -3,6 +3,16 @@ entries:
   appchart:
   - apiVersion: v2
     appVersion: 1.0.0
+    created: "2026-02-08T12:13:57.790376781Z"
+    description: A helm chart to simplify app deployment
+    digest: e32ca7b971748e068e9a03c51baffd839f400c4ee809cc7daa8960498463618a
+    name: appchart
+    type: application
+    urls:
+    - https://github.com/k0rventen/appchart/releases/download/appchart-1.8.0/appchart-1.8.0.tgz
+    version: 1.8.0
+  - apiVersion: v2
+    appVersion: 1.0.0
     created: "2026-01-08T09:00:50.082488593Z"
     description: A helm chart to simplify app deployment
     digest: 727d17b94f8e8175cdb7fdbf5cccbddde617428d96bb4e501892c127dd0f7208
@@ -41,4 +51,4 @@ entries:
     urls:
     - https://github.com/k0rventen/appchart/releases/download/appchart-1.4.1/appchart-1.4.1.tgz
     version: 1.4.1
-generated: "2026-01-08T09:00:50.082514952Z"
+generated: "2026-02-08T12:13:57.790400194Z"
