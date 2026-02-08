@@ -1,0 +1,3 @@
+privateIngressClass: traefik
+publicIngressClass: traefik-tunnel
+storageClass: nfs-csi

@@ -1,4 +1,3 @@
-# templates/deployment.yaml
 {{- range .Values.apps }}
 ---
 apiVersion: apps/v1
@@ -96,6 +95,9 @@ kind: PersistentVolumeClaim
 metadata:
   name: {{ . }}
 spec:
+{{- if $.Values.storageClass }}
+  storageClassName: {{ $.Values.storageClass }}
+{{end}}
   accessModes:
     - ReadWriteMany
   resources:
@@ -110,9 +112,13 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
+  {{- if ( default false .ingress.oidc ) }}
+  annotations:
+    traefik.ingress.kubernetes.io/router.middlewares: ingress-oidc@kubernetescrd
+  {{- end }}
   name: {{ .name }}
 spec:
-  ingressClassName: traefik
+  ingressClassName: {{ $.Values.privateIngressClass}}
   rules:
   - host: {{ .ingress.domain }}
     http:
@@ -133,12 +139,33 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: {{ .name }}-tunnel
+
+  {{- $geoblock := hasKey .ingress "geoblock" | ternary .ingress.geoblock true}}
+  {{- $oidc :=  .ingress.oidc | default false }}
+
+  {{- $middlewares := list }}
+
+  {{- if $geoblock }}
+  {{- $middlewares = append $middlewares "ingress-geoblock@kubernetescrd" }}
+  {{- end }}
+
+  {{- if $oidc }}
+  {{- $middlewares = append $middlewares "ingress-oidc@kubernetescrd" }}
+  {{- end }}
+
+  {{- if not $geoblock }}
+  # so kyverno will not add the default geoblock
+  labels:
+    cocointhe.cloud/geoblock-disabled: ""
+  {{- end }}
+
+  {{- if $middlewares }}
   annotations:
-    {{- if ( default false .ingress.worldwide_access ) }}
-    traefik.ingress.kubernetes.io/router.middlewares: ingress-geoblock@kubernetescrd
-    {{- end }}
+    traefik.ingress.kubernetes.io/router.middlewares: {{ join "," $middlewares }}
+  {{- end }}
+
 spec:
-  ingressClassName: traefik-tunnel
+  ingressClassName:  {{$.Values.publicIngressClass}}
   rules:
   - host: {{ .ingress.domain }}
     http:
@@ -173,19 +200,3 @@ data:
 ---
 {{- end }}
 
-
-# secret generation
-{{- range $name, $data := .Values.secrets }}
-apiVersion: v1
-kind: Secret
-type: Opaque
-metadata:
-  name: {{ $name }}
-stringData:
-  {{- range $key, $value := $data }}
-  {{ $key }}: |
-    {{- $value | nindent 4 }}
-  {{- end }}
-
----
-{{- end }}
